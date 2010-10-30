@@ -7,15 +7,15 @@ revolutionize the way you communicate asynchronously.
 
 Configuration
 =============
-$HOME/.config/buddyheads/settings, a YAML file, needs to be created.  At some
+`$HOME/.config/buddyheads/settings`, a YAML file, needs to be created.  At some
 point this will be managed by the UI.
 
 Installation
 ============
 
-Edit the paths in BuddyHeads_Factory.server and then put it in /usr/lib/bonobo/servers.
+Edit the paths in `BuddyHeads_Factory.server` and then put it in `/usr/lib/bonobo/servers`.
 
 Testing
 =======
 
-buddyheads --test will launch buddyheads in a window instead of as an applet.
+`buddyheads --test` will launch buddyheads in a window instead of as an applet.
