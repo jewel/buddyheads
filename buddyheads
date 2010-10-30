@@ -1,0 +1,21 @@
+#!/usr/bin/ruby -w
+require 'panelapplet2'
+require 'lib/applet'
+
+if ARGV.include? "--test"
+  window = Gtk::Window.new
+  window.add BuddyApplet.new.widget
+  window.show_all
+  Gtk.main
+  exit
+end
+
+OAFIID = "OAFIID:BuddyHeads_Factory"
+
+PanelApplet.main( OAFIID, "BuddyHeadsApplet", "0.1" ) do |applet, iid|
+  applet.set_flags PanelApplet::EXPAND_MINOR
+  gui = BuddyApplet.new
+  applet << gui.widget
+  applet.show_all
+  true
+end
