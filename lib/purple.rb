@@ -4,6 +4,14 @@ require 'pp'
 
 module Purple
   @purple = nil
+
+  @change_responders = []
+
+  def self.on_change &block
+    connect if !@purple
+    @change_responders.push block
+  end
+
   private
   def self.method_missing symbol, *args
     connect if !@purple
@@ -19,14 +27,13 @@ module Purple
     res[0] == 0 ? nil : res[0]
   end
 
-  def on_change( method )
-    @purple.on_signal( 'BuddySignedOn' ) do |buddy|
-      method.call( buddy )
-    end
-    @purple.on_signal( 'BuddySignedOff') do |buddy|
-      method.call( buddy )
-    end
-  end
+  CHANGE_SIGNALS = %w{
+    BuddyStatusChanged
+    BuddyIdleChanged
+    BuddySignedOn
+    BuddySignedOff
+    BuddyIconChanged
+  }
 
   def self.connect
     bus = DBus::SessionBus.instance
@@ -43,6 +50,14 @@ module Purple
     @purple = service.object("/im/pidgin/purple/PurpleObject")
     @purple.introspect
     @purple.default_iface = "im.pidgin.purple.PurpleInterface"
+
+    CHANGE_SIGNALS.each do |sig|
+      @purple.on_signal( sig ) do |buddy|
+        @change_responders.each do |m|
+          m.call buddy
+        end
+      end
+    end
   end
 
   class Buddy
@@ -56,19 +71,27 @@ module Purple
 
     def icon
       path = nil
-      # if Purple.buddy_icons_has_custom_icon @contact
-      #   custom = Purple.buddy_icons_find_custom_icon @contact
-      #   icon_dir = File.join Purple.user_dir, "icons"
-      #   begin
-      #     # this next call only works if pidgin has been recompiled to add the
-      #     # imgstore methods to dbus
-      #     path = File.join icon_dir, Purple.imgstore_get_filename( custom )
-      #   rescue
-      #   end
-      # end
+      if Purple.buddy_icons_has_custom_icon @contact
+        custom = Purple.buddy_icons_find_custom_icon @contact
+        icon_dir = File.join Purple.user_dir, "icons"
+        begin
+          # this next call only works if pidgin has been recompiled to add the
+          # imgstore methods to dbus
+          path = File.join icon_dir, Purple.imgstore_get_filename( custom )
+        rescue
+        end
+      end
 
-      icon = Purple.buddy_get_icon @buddy
-      path ||= Purple.buddy_icon_get_full_path icon if icon
+      if !path
+        icon = Purple.buddy_get_icon @buddy
+        path = Purple.buddy_icon_get_full_path icon if icon
+      end
+
+      path
+    end
+
+    def online?
+      Purple.buddy_is_online( @buddy ) == 1 ? true : false
     end
   end
 end

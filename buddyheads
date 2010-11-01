@@ -1,4 +1,7 @@
 #!/usr/bin/ruby -w
+
+Dir.chdir File.dirname( $0 )
+
 require 'panelapplet2'
 require 'lib/applet'
 
