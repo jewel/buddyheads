@@ -1,7 +1,7 @@
 Introduction
 ============
 
-This is a GNOME applet for pidgin.  It will show you the status of your
+This is a GNOME2 applet for pidgin.  It will show you the status of your
 favorite buddies.  This makes it easy to send offline messages, which will
 revolutionize the way you communicate asynchronously.
 
